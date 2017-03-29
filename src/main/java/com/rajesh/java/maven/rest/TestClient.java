@@ -1,6 +1,6 @@
 package com.rajesh.java.maven.rest;
 
-import sun.net.www.content.text.PlainTextInputStream;
+import org.glassfish.jersey.internal.util.Base64;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -15,30 +15,28 @@ public class TestClient {
 
     public static void main(String[] args) {
         String uri =
-                "http://localhost:8080/hello/rajesh";
+                "http://localhost:8080/rest/hello/rajesh";
         URL url = null;
         byte[] response = new byte[1000];
         String strResponse = "";
         try {
             url = new URL(uri);
 
-        HttpURLConnection connection =
-                (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Accept", "text/plain");
+            HttpURLConnection connection =
+                    (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "text/plain");
+            String userCredentials = "rajesh:rajesh";
+            String basicAuth = "Basic " + new String(new Base64().encode(userCredentials.getBytes()));
+            connection.setRequestProperty("Authorization", basicAuth);
 
-        System.out.println("connection.getContent() = "+connection.getContent());
-        System.out.println("connection.getResponseMessage() = "+connection.getResponseMessage());
+            System.out.println("connection.getContent() = " + connection.getContent());
+            System.out.println("connection.getResponseMessage() = " + connection.getResponseMessage());
 
-        /*PlainTextInputStream stream = (PlainTextInputStream) connection.getContent();
-        while (stream.read(response) > 0){
-            strResponse = strResponse + response.toString();
-        }*/
+            strResponse = readString((InputStream) connection.getContent());
 
-        strResponse = readString((InputStream) connection.getContent());
-
-        System.out.println("strResponse = "+strResponse);
-        connection.disconnect();
+            System.out.println("strResponse = " + strResponse);
+            connection.disconnect();
         } catch (Exception e) {
             e.printStackTrace();
         }
